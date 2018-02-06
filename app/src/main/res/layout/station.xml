@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/Map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/StationName"
+        android:layout_centerHorizontal="true"
+        android:text="Button" />
+
+    <TextView
+        android:id="@+id/StationName"
+        android:layout_width="360dp"
+        android:layout_height="33dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:singleLine="false"
+        android:text="StationName"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/ImageBike"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/StationName"
+        app:layout_constraintTop_toBottomOf="@+id/StationName"
+        app:srcCompat="@android:color/holo_blue_bright"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/NumberBike"
+        android:layout_width="50dp"
+        android:layout_height="29dp"
+        android:layout_alignBottom="@+id/ImageBike"
+        android:layout_marginBottom="8dp"
+        android:layout_toEndOf="@+id/ImageBike"
+        android:ems="10"
+        android:inputType="number"
+        android:text="000"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/ImageBike"
+        tools:layout_editor_absoluteY="42dp" />
+
+    <ImageView
+        android:id="@+id/Dock"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/StationName"
+        app:layout_constraintTop_toBottomOf="@+id/StationName"
+        app:srcCompat="@android:color/holo_green_dark"
+        tools:layout_editor_absoluteX="312dp" />
+
+    <TextView
+        android:id="@+id/NumberDock"
+        android:layout_width="50dp"
+        android:layout_height="32dp"
+        android:layout_alignBottom="@+id/NumberBike"
+        android:layout_toStartOf="@+id/Dock"
+        android:ems="10"
+        android:inputType="number"
+        android:text="000"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/Dock"
+        tools:layout_editor_absoluteY="42dp" />
+</RelativeLayout>
