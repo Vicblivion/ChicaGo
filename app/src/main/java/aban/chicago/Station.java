@@ -68,4 +68,10 @@ public class Station implements Parcelable{
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeStringArray(new String[]{this.name,""+this.bike,""+this.dock,""+this.number,""+this.latitude,""+this.longitude});
     }
+
+    public double distance(double tLatitude, double tLongitude){
+        double lat = (this.latitude-tLatitude) * (1000/9);
+        double lon = (this.longitude-tLongitude) * (1000/9) * Math.cos(lat);
+        return Math.sqrt(Math.pow((lon),2)-Math.pow((lat),2));
+    }
 }

@@ -15,10 +15,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -60,12 +62,35 @@ public class StationList extends AppCompatActivity {
     private boolean enabled;
     private String provider;
     private Location location;
+    private double latitude = 0;
+    private double longitude = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
         parser.start();
+
+        Button blkm = (Button) findViewById(R.id.SortByDistance);
+        blkm.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Station station;
+                int place;
+                ArrayList<Station> sortedList = new ArrayList<Station>();
+                while(stations.size()!=0) {
+                    station = stations.get(0);
+                    place = 0;
+                    for (int i = 0; i < stations.size(); i++) {
+                        if(stations.get(i).distance(latitude,longitude)<station.distance(latitude,longitude)){
+                            station=stations.get(i);
+                            place = i;
+                            stations.remove(i);
+                        }
+                    }
+                    sortedList.add(station);
+                }
+            }
+        });
     }
         
 
