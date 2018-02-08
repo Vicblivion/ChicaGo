@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Thread.sleep;
 
@@ -55,6 +56,7 @@ public class StationList extends AppCompatActivity {
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
             stations = bundle.getParcelableArrayList("Stations");
+            Log.e(TAG,"Message reçu");
         }
     };
     private ParserStation parser = new ParserStation();
@@ -64,75 +66,102 @@ public class StationList extends AppCompatActivity {
     private Location location;
     private double latitude = 0;
     private double longitude = 0;
+    private ListeStation listeView;
+    private byte tri = 0;
+    private Lander lander = new Lander();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
         parser.start();
-
-        Button blkm = (Button) findViewById(R.id.SortByDistance);
-        blkm.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Station station;
-                int place;
-                ArrayList<Station> sortedList = new ArrayList<Station>();
-                while(stations.size()!=0) {
-                    station = stations.get(0);
-                    place = 0;
-                    for (int i = 0; i < stations.size(); i++) {
-                        if(stations.get(i).distance(latitude,longitude)<station.distance(latitude,longitude)){
-                            station=stations.get(i);
-                            place = i;
-                            stations.remove(i);
-                        }
-                    }
-                    sortedList.add(station);
-                }
-            }
-        });
+        lander.start();
     }
-        
 
-        /*service = (LocationManager) getSystemService(LOCATION_SERVICE);
-        enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (!enabled) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
-        Criteria criteria = new Criteria();
-        provider = service.getBestProvider(criteria, false);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
-        location = service.getLastKnownLocation(provider);
-        while(true){
-            majList(stations);
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void affichageList(ArrayList<Station> l){
+        setContentView(R.layout.activity_station_list);
+        stationList = (ListView) findViewById(R.id.listView);
+        majList(l);
+        listeView = new ListeStation();
+        listeView.start();
+        lander.interrupt();
+        lander = null;
+    }
+
+    public ArrayList<Station> trier(ArrayList<Station> listnt, byte type){
+        Station station;
+        int place;
+        ArrayList<Station> sortedList = new ArrayList<Station>();
+
+        tri = type;
+        if (tri == 1){
+            while(stations.size()!=0) {
+                station = stations.get(0);
+                place = 0;
+                for (int i = 0; i < stations.size(); i++) {
+                    if(stations.get(i).distance(latitude,longitude)<station.distance(latitude,longitude)){
+                        station=stations.get(i);
+                        place = i;
+                    }
+                }
+                stations.remove(place);
+                sortedList.add(station);
             }
-        }*/
+        }
+        if (tri == 2){
+            while(stations.size()!=0) {
+                station = stations.get(0);
+                place = 0;
+                for (int i = 0; i < stations.size(); i++) {
+                    if(stations.get(i).getBike()>station.getBike()){
+                        station=stations.get(i);
+                        place = i;
+                    }
+                }
+                stations.remove(place);
+                sortedList.add(station);
+            }
+        }
+        if(tri == 3){
+            while(stations.size()!=0) {
+                station = stations.get(0);
+                place = 0;
+                for (int i = 0; i < stations.size(); i++) {
+                    if(stations.get(i).getDock()>station.getDock()){
+                        station=stations.get(i);
+                        place = i;
+                    }
+                }
+                stations.remove(place);
+                sortedList.add(station);
+            }
+        }
+        stations = sortedList;
+        return sortedList;
+    }
 
     public void majList(ArrayList<Station> stations){
-        StationAdapter adapter = new StationAdapter(this, stations, location);
-        stationList.setAdapter(adapter);
+        if(stations.size()>0) {
+            StationAdapter adapter = new StationAdapter(this, stations, location);
+            stationList.setAdapter(adapter);
+        }
     }
 
     class ParserStation extends Thread {
         private static final String TAG = "Parser";
         private ArrayList<Station> stations = new ArrayList<Station>();
-        private Message msg = handler.obtainMessage();
+        private Message msg;
         private Bundle bundle = new Bundle();
 
         public void run(){
-            //while (true){
+            while (true){
                 parsing();
-                /*try {
+                try {
                     Thread.sleep(60000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }*/
-            //}
+                }
+            }
         }
 
         public void parsing(){
@@ -143,7 +172,6 @@ public class StationList extends AppCompatActivity {
                 connection.setRequestMethod("GET");
                 InputStream in = new BufferedInputStream(connection.getInputStream());
                 response = convertStreamToString(in);
-                Log.e(TAG,""+response);
                 if(response != null){
                     JSONObject file = new JSONObject(response);
                     JSONArray list = file.getJSONArray("stationBeanList");
@@ -169,6 +197,7 @@ public class StationList extends AppCompatActivity {
             catch (Exception e) {Log.e(TAG, "Exception: " + e.getMessage());}
 
             bundle.putParcelableArrayList("Stations",stations);
+            msg = handler.obtainMessage();
             msg.setData(bundle);
             handler.sendMessage(msg);
         }
@@ -184,6 +213,64 @@ public class StationList extends AppCompatActivity {
             catch (IOException e) {e.printStackTrace();}
             }
             return sb.toString();
+        }
+    }
+
+    class ListeStation extends Thread{
+        private static final String TAG = "Liste des stations";
+
+        public void run(){
+            Button blback = (Button) findViewById(R.id.StationListBack);
+            blback.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    setContentView(R.layout.landing_page);
+                    listeView.interrupt();
+                    listeView = null;
+                    lander = new Lander();
+                    lander.start();
+                }
+            });
+
+            while (true){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        majList(trier(stations,tri));
+                    }
+                });
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class Lander extends Thread{
+        private static final String TAG = "Landing page";
+
+        public void run(){
+            Button blkm = (Button) findViewById(R.id.SortByDistance);
+            blkm.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    affichageList(trier(stations, (byte) 1));
+                }
+            });
+
+            Button blbike = (Button) findViewById(R.id.SortByBike);
+            blbike.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    affichageList(trier(stations, (byte) 2));
+                }
+            });
+
+            Button bldock = (Button) findViewById(R.id.SortByDock);
+            bldock.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    affichageList(trier(stations, (byte) 3));
+                }
+            });
         }
     }
 }
