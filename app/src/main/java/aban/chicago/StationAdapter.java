@@ -48,12 +48,17 @@ public class StationAdapter extends BaseAdapter {
         Button button = (Button) rowView.findViewById(R.id.Map);
 
         Station station = (Station) getItem(position);
-        //double distance = Math.sqrt(Math.pow((station.getLongitude()-location.getLongitude()),2)-Math.pow((station.getLatitude()-location.getLatitude()),2));
 
         stationName.setText(station.getName());
         bikeNumber.setText(""+station.getBike());
         dockNumber.setText(""+station.getDock());
-        //button.setText(""+distance);
+        if(station.getDistance()<1){button.setText((int) (station.getDistance()*1000)+" m");}
+        else{button.setText(station.getDistance()+" Km");}
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+            }
+        });
         return rowView;
     }
 }

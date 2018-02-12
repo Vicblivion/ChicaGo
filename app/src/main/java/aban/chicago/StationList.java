@@ -24,6 +24,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -56,7 +63,7 @@ public class StationList extends AppCompatActivity {
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
             stations = bundle.getParcelableArrayList("Stations");
-            Log.e(TAG,"Message reçu");
+            Log.e(TAG, "Message reçu");
         }
     };
     private ParserStation parser = new ParserStation();
@@ -64,8 +71,8 @@ public class StationList extends AppCompatActivity {
     private boolean enabled;
     private String provider;
     private Location location;
-    private double latitude = 0;
-    private double longitude = 0;
+    private double latitude = 41.870276;
+    private double longitude = -87.677735;
     private ListeStation listeView;
     private byte tri = 0;
     private Lander lander = new Lander();
@@ -77,6 +84,7 @@ public class StationList extends AppCompatActivity {
         parser.start();
         lander.start();
     }
+
 
     public void affichageList(ArrayList<Station> l){
         setContentView(R.layout.activity_station_list);
@@ -94,47 +102,33 @@ public class StationList extends AppCompatActivity {
         ArrayList<Station> sortedList = new ArrayList<Station>();
 
         tri = type;
-        if (tri == 1){
-            while(stations.size()!=0) {
-                station = stations.get(0);
-                place = 0;
-                for (int i = 0; i < stations.size(); i++) {
-                    if(stations.get(i).distance(latitude,longitude)<station.distance(latitude,longitude)){
-                        station=stations.get(i);
+        while(stations.size()!=0) {
+            station = stations.get(0);
+            place = 0;
+            for (int i = 0; i < stations.size(); i++) {
+                if (tri == 1) {
+                    if (stations.get(i).distance(latitude, longitude) < station.distance(latitude, longitude)) {
+                        station = stations.get(i);
                         place = i;
                     }
-                }
-                stations.remove(place);
-                sortedList.add(station);
-            }
-        }
-        if (tri == 2){
-            while(stations.size()!=0) {
-                station = stations.get(0);
-                place = 0;
-                for (int i = 0; i < stations.size(); i++) {
-                    if(stations.get(i).getBike()>station.getBike()){
-                        station=stations.get(i);
-                        place = i;
+                } else {if (tri == 2) {
+                        if (stations.get(i).getBike() > station.getBike()) {
+                            station = stations.get(i);
+                            place = i;
+                        }
+                    } else {if (tri == 3) {
+                            if (stations.get(i).getDock() > station.getDock()) {
+                                station = stations.get(i);
+                                place = i;
+                            }
+                        }
                     }
                 }
-                stations.remove(place);
-                sortedList.add(station);
             }
-        }
-        if(tri == 3){
-            while(stations.size()!=0) {
-                station = stations.get(0);
-                place = 0;
-                for (int i = 0; i < stations.size(); i++) {
-                    if(stations.get(i).getDock()>station.getDock()){
-                        station=stations.get(i);
-                        place = i;
-                    }
-                }
-                stations.remove(place);
-                sortedList.add(station);
-            }
+            stations.remove(place);
+            station.setDistance(latitude,longitude);
+            //if(station.getNumber()==2){Log.e(TAG,""+station.getLatitude()+" ; "+station.getLongitude()+" ; "+station.getDistance());}
+            sortedList.add(station);
         }
         stations = sortedList;
         return sortedList;

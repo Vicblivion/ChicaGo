@@ -2,18 +2,25 @@ package aban.chicago;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+import android.widget.Button;
+
+import static android.content.ContentValues.TAG;
+import static java.lang.Math.abs;
 
 /**
  * Created by Vicblivion on 18/01/2018.
  */
 
 public class Station implements Parcelable{
+    private static final String TAG = "Station";
     private String name = new String();
     private int bike = 0;
     private int dock = 0;
     private int number = -1;
     private double latitude = 0;
     private double longitude = 0;
+    private double distance = 0;
 
     public Station(String name, int bike, int dock, int number, double latitude, double longitude){
         this.name = name;
@@ -39,6 +46,7 @@ public class Station implements Parcelable{
     public void setName(String name){this.name = name;}
     public void setBike(int bike){this.bike = bike;}
     public void setDock(int dock){this.dock = dock;}
+    public void setDistance(double tlat, double tlong){distance = distance(tlat,tlong);}
 
     public String getName(){return this.name;}
     public int getBike(){return this.bike;}
@@ -46,6 +54,7 @@ public class Station implements Parcelable{
     public int getNumber(){return this.number;}
     public double getLatitude(){return this.latitude;}
     public double getLongitude(){return this.longitude;}
+    public double getDistance(){return distance;}
 
     public Station(Parcel in){
         String[] data = new String[6];
@@ -71,7 +80,9 @@ public class Station implements Parcelable{
 
     public double distance(double tLatitude, double tLongitude){
         double lat = (this.latitude-tLatitude) * (1000/9);
+        //if(this.number==2){Log.e(TAG,""+lat);}
         double lon = (this.longitude-tLongitude) * (1000/9) * Math.cos(lat);
-        return Math.sqrt(Math.pow((lon),2)-Math.pow((lat),2));
+        //if(this.number==2){Log.e(TAG,""+lon);}
+        return (double) Math.round((Math.sqrt(abs(Math.pow(lon,2)-Math.pow(lat,2))))*1000)/1000;
     }
 }
